@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -37,13 +37,17 @@ jobs:
         sdkmanager --install \
           "platform-tools" \
           "platforms;android-34" \
-          "build-tools;34.0.0"
+          "build-tools;34.0.0" \
+          "build-tools;33.0.1"
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
 
     - name: Build with Gradle
-      uses: gradle/gradle-build-action@v3
-      with:
-        gradle-version: 8.1
-        arguments: --no-daemon --stacktrace assembleDebug assembleRelease
+      run: ./gradlew --no-daemon --stacktrace assembleDebug assembleRelease
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
