@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">اتصال خودکار پیامک</string>
+    
+    <!-- Main Activity -->
+    <string name="main_title">اتصال خودکار پیامک</string>
+    <string name="main_subtitle">ارسال خودکار پیام پس از تماس</string>
+    <string name="main_enable_switch">فعال‌سازی ارسال خودکار پیام</string>
+    <string name="main_stats_title">آمار</string>
+    <string name="main_messages_this_week">پیام‌های هفته جاری</string>
+    <string name="main_last_successful">آخرین موفق</string>
+    <string name="main_last_failed">آخرین ناموفق</string>
+    <string name="main_no_data">داده‌ای موجود نیست</string>
+    <string name="main_settings">تنظیمات</string>
+    <string name="main_logs">گزارش پیام‌ها</string>
+    
+    <!-- Settings -->
+    <string name="settings">تنظیمات</string>
+    <string name="settings_general">عمومی</string>
+    <string name="settings_messages">قالب پیام‌ها</string>
+    <string name="settings_apis">تنظیمات API</string>
+    <string name="settings_advanced">پیشرفته</string>
+    
+    <!-- General Settings -->
+    <string name="settings_enable_sms">فعال‌سازی پیامک</string>
+    <string name="settings_enable_whatsapp">فعال‌سازی واتساپ</string>
+    <string name="settings_enable_telegram">فعال‌سازی تلگرام</string>
+    <string name="settings_dedup_hours">جلوگیری از تکرار (ساعت)</string>
+    <string name="settings_auto_cleanup">پاک‌سازی خودکار</string>
+    <string name="settings_auto_cleanup_daily">روزانه</string>
+    <string name="settings_auto_cleanup_weekly">هفتگی</string>
+    <string name="settings_auto_cleanup_off">خاموش</string>
+    <string name="settings_language">زبان</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_persian">فارسی</string>
+    
+    <!-- Message Templates -->
+    <string name="settings_message_incoming">پیام تماس ورودی</string>
+    <string name="settings_message_outgoing">پیام تماس خروجی</string>
+    <string name="settings_message_missed">پیام تماس بی‌پاسخ</string>
+    <string name="settings_message_default_incoming">ممنون از تماس شما!</string>
+    <string name="settings_message_default_outgoing">قبلاً با شما تماس گرفتم.</string>
+    <string name="settings_message_default_missed">تماس شما را از دست دادم، به زودی تماس می‌گیرم.</string>
+    
+    <!-- API Configuration -->
+    <string name="settings_whatsapp_api_key">کلید API واتساپ</string>
+    <string name="settings_whatsapp_api_key_hint">کلید API واتساپ خود را وارد کنید</string>
+    <string name="settings_telegram_bot_token">توکن ربات تلگرام</string>
+    <string name="settings_telegram_bot_token_hint">توکن ربات خود را وارد کنید</string>
+    <string name="settings_telegram_chat_id">شناسه چت تلگرام</string>
+    <string name="settings_telegram_chat_id_hint">شناسه چت خود را وارد کنید</string>
+    
+    <!-- Logs -->
+    <string name="logs">گزارش پیام‌ها</string>
+    <string name="logs_filter">فیلتر</string>
+    <string name="logs_filter_all">همه</string>
+    <string name="logs_filter_incoming">ورودی</string>
+    <string name="logs_filter_outgoing">خروجی</string>
+    <string name="logs_filter_missed">بی‌پاسخ</string>
+    <string name="logs_export_csv">خروجی CSV</string>
+    <string name="logs_clear">پاک کردن گزارش‌ها</string>
+    <string name="logs_no_logs">گزارشی موجود نیست</string>
+    <string name="logs_phone_number">شماره تلفن</string>
+    <string name="logs_call_type">نوع تماس</string>
+    <string name="logs_message">پیام</string>
+    <string name="logs_channel">کانال</string>
+    <string name="logs_status">وضعیت</string>
+    <string name="logs_timestamp">زمان</string>
+    
+    <!-- Call Types -->
+    <string name="call_type_incoming">ورودی</string>
+    <string name="call_type_outgoing">خروجی</string>
+    <string name="call_type_missed">بی‌پاسخ</string>
+    <string name="call_type_unknown">نامشخص</string>
+    
+    <!-- Message Channels -->
+    <string name="channel_sms">پیامک</string>
+    <string name="channel_whatsapp">واتساپ</string>
+    <string name="channel_telegram">تلگرام</string>
+    
+    <!-- Status -->
+    <string name="status_success">موفق</string>
+    <string name="status_failed">ناموفق</string>
+    <string name="status_pending">در انتظار</string>
+    
+    <!-- Common -->
+    <string name="save">ذخیره</string>
+    <string name="cancel">لغو</string>
+    <string name="ok">تأیید</string>
+    <string name="error">خطا</string>
+    <string name="success">موفقیت</string>
+    <string name="loading">در حال بارگذاری...</string>
+    
+    <!-- Permissions -->
+    <string name="permission_required">مجوز مورد نیاز</string>
+    <string name="permission_sms_explanation">مجوز پیامک برای ارسال خودکار پیام‌ها مورد نیاز است</string>
+    <string name="permission_phone_explanation">مجوز تلفن برای تشخیص تماس‌ها مورد نیاز است</string>
+    <string name="permission_call_log_explanation">مجوز گزارش تماس برای تشخیص نوع تماس مورد نیاز است</string>
+    <string name="permission_grant">اعطای مجوز</string>
+    <string name="permission_denied">مجوز رد شد. برخی ویژگی‌ها ممکن است به درستی کار نکنند.</string>
+    
+    <!-- Battery Optimization -->
+    <string name="battery_optimization_title">بهینه‌سازی باتری</string>
+    <string name="battery_optimization_message">برای تشخیص قابل اعتماد تماس، لطفاً بهینه‌سازی باتری را برای این برنامه غیرفعال کنید</string>
+    <string name="battery_optimization_settings">باز کردن تنظیمات</string>
+    <string name="battery_optimization_later">بعداً</string>
+    
+    <!-- Notifications -->
+    <string name="notification_channel_name">اتصال خودکار پیامک</string>
+    <string name="notification_channel_description">اعلان‌ها برای سرویس ارسال خودکار پیام</string>
+    <string name="notification_service_running">سرویس ارسال خودکار پیام در حال اجرا است</string>
+    
+    <!-- Errors -->
+    <string name="error_no_network">اتصال شبکه موجود نیست</string>
+    <string name="error_api_failed">فراخوانی API ناموفق بود</string>
+    <string name="error_sms_failed">ارسال پیامک ناموفق بود</string>
+    <string name="error_invalid_number">شماره تلفن نامعتبر</string>
+    <string name="error_permission_denied">مجوز رد شد</string>
+</resources>

@@ -1,0 +1,79 @@
+name: Android CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+        
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      
+    - name: Cache Gradle packages
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Build Debug APK
+      run: ./gradlew assembleDebug
+      
+    - name: Build Release APK
+      run: ./gradlew assembleRelease
+      
+    - name: Upload Debug APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-debug
+        path: app/build/outputs/apk/debug/app-debug.apk
+        
+    - name: Upload Release APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-release-unsigned
+        path: app/build/outputs/apk/release/app-release-unsigned.apk
+        
+    - name: Sign Release APK (if secrets available)
+      if: ${{ secrets.SIGNING_KEYSTORE_BASE64 != '' && secrets.SIGNING_KEY_ALIAS != '' && secrets.SIGNING_KEY_PASSWORD != '' && secrets.SIGNING_STORE_PASSWORD != '' }}
+      run: |
+        echo ${{ secrets.SIGNING_KEYSTORE_BASE64 }} | base64 -d > keystore.jks
+        echo ${{ secrets.SIGNING_STORE_PASSWORD }} > store_password
+        echo ${{ secrets.SIGNING_KEY_PASSWORD }} > key_password
+        echo ${{ secrets.SIGNING_KEY_ALIAS }} > key_alias
+        
+        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
+          -keystore keystore.jks \
+          -storepass $(cat store_password) \
+          -keypass $(cat key_password) \
+          app/build/outputs/apk/release/app-release-unsigned.apk \
+          $(cat key_alias)
+          
+        zipalign -v 4 \
+          app/build/outputs/apk/release/app-release-unsigned.apk \
+          app-release-signed.apk
+          
+    - name: Upload Signed Release APK (if signed)
+      if: ${{ secrets.SIGNING_KEYSTORE_BASE64 != '' && secrets.SIGNING_KEY_ALIAS != '' && secrets.SIGNING_KEY_PASSWORD != '' && secrets.SIGNING_STORE_PASSWORD != '' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-release-signed
+        path: app-release-signed.apk
