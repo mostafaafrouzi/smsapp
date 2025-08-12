@@ -143,10 +143,10 @@
                         android:id="@+id/dedupSlider"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:valueFrom="1"
-                        android:valueTo="168"
-                        android:step="1"
-                        android:value="24" />
+                        app:valueFrom="1.0"
+                        app:valueTo="168.0"
+                        app:stepSize="1.0"
+                        app:value="24.0" />
 
                     <TextView
                         android:id="@+id/dedupValueText"
