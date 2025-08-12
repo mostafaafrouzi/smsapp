@@ -48,7 +48,11 @@ class SettingsActivity : AppCompatActivity() {
             viewModel.updateTelegramEnabled(isChecked)
         }
         
-        // Setup slider
+        // Setup slider defaults and listener (moved attrs from XML to code)
+        binding.dedupSlider.valueFrom = 1f
+        binding.dedupSlider.valueTo = 168f
+        binding.dedupSlider.stepSize = 1f
+        binding.dedupSlider.value = 24f
         binding.dedupSlider.addOnChangeListener { _, value, fromUser ->
             if (fromUser) {
                 viewModel.updateDedupHours(value.toInt())
@@ -108,8 +112,9 @@ class SettingsActivity : AppCompatActivity() {
             binding.whatsappSwitch.isChecked = settings.isWhatsAppEnabled
             binding.telegramSwitch.isChecked = settings.isTelegramEnabled
             
-            binding.dedupSlider.value = settings.dedupHours.toFloat()
-            updateDedupValueText(settings.dedupHours)
+            val clamped = settings.dedupHours.coerceIn(1, 168)
+            binding.dedupSlider.value = clamped.toFloat()
+            updateDedupValueText(clamped)
             
             binding.incomingMessageEdit.setText(settings.messageIncoming)
             binding.outgoingMessageEdit.setText(settings.messageOutgoing)
