@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.autoconnect.sms.ui.adapters.LogsAdapter
 import com.autoconnect.sms.R
 import com.autoconnect.sms.data.db.AppDatabase
 import com.autoconnect.sms.data.prefs.PreferencesManager
