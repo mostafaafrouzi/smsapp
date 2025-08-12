@@ -1,6 +1,9 @@
 package com.autoconnect.sms.core.sms
 
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.telephony.SmsManager
 import android.util.Log
 import com.autoconnect.sms.data.model.CallLogItem
@@ -28,23 +31,42 @@ class SmsSender(private val context: Context) {
             
             if (parts.size > 1) {
                 // Send multipart SMS
-                val sentIntents = ArrayList<android.content.Intent>()
-                val deliveredIntents = ArrayList<android.content.Intent>()
-                
-                for (i in parts.indices) {
-                    val sentIntent = android.content.Intent("SMS_SENT")
-                    val deliveredIntent = android.content.Intent("SMS_DELIVERED")
-                    
-                    sentIntents.add(sentIntent)
-                    deliveredIntents.add(deliveredIntent)
+                val sentPendingIntents = ArrayList<PendingIntent>()
+                val deliveredPendingIntents = ArrayList<PendingIntent>()
+
+                val pendingIntentFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                } else {
+                    PendingIntent.FLAG_UPDATE_CURRENT
                 }
-                
+
+                for (i in parts.indices) {
+                    val sentIntent = Intent("SMS_SENT")
+                    val deliveredIntent = Intent("SMS_DELIVERED")
+
+                    val sentPI = PendingIntent.getBroadcast(
+                        context,
+                        1000 + i,
+                        sentIntent,
+                        pendingIntentFlags
+                    )
+                    val deliveredPI = PendingIntent.getBroadcast(
+                        context,
+                        2000 + i,
+                        deliveredIntent,
+                        pendingIntentFlags
+                    )
+
+                    sentPendingIntents.add(sentPI)
+                    deliveredPendingIntents.add(deliveredPI)
+                }
+
                 smsManager.sendMultipartTextMessage(
                     phoneNumber,
                     null,
                     parts,
-                    sentIntents,
-                    deliveredIntents
+                    sentPendingIntents,
+                    deliveredPendingIntents
                 )
             } else {
                 // Send single SMS

@@ -126,11 +126,13 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
         
-        viewModel.saveResult.observe(this) { success ->
-            if (success) {
-                Toast.makeText(this, R.string.success, Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show()
+        lifecycleScope.launchWhenStarted {
+            viewModel.saveResult.collect { success ->
+                when (success) {
+                    true -> Toast.makeText(this@SettingsActivity, R.string.success, Toast.LENGTH_SHORT).show()
+                    false -> Toast.makeText(this@SettingsActivity, R.string.error, Toast.LENGTH_SHORT).show()
+                    null -> Unit
+                }
             }
         }
     }

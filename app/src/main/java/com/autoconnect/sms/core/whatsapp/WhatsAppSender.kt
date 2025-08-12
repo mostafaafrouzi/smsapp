@@ -36,7 +36,7 @@ class WhatsAppSender(private val context: Context) {
         callType: CallType,
         apiKey: String
     ): CallLogItem = withContext(Dispatchers.IO) {
-        return try {
+        try {
             Log.d(TAG, "Sending WhatsApp message to $phoneNumber: $message")
             
             if (apiKey.isBlank()) {

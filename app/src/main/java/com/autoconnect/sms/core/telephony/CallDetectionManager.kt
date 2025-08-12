@@ -56,21 +56,20 @@ class CallDetectionManager(private val context: Context) {
     }
     
     private suspend fun shouldSkipDueToDedup(phoneNumber: String, dedupHours: Int): Boolean {
-        try {
+        return try {
             val calendar = Calendar.getInstance()
             calendar.add(Calendar.HOUR, -dedupHours)
             val since = calendar.time
-            
+
             val recentMessages = database.callLogDao().getRecentMessagesForNumber(phoneNumber, since)
+            var hasRecent = false
             recentMessages.collect { messages ->
-                if (messages.isNotEmpty()) {
-                    return true
-                }
+                hasRecent = messages.isNotEmpty()
             }
-            return false
+            hasRecent
         } catch (e: Exception) {
             Log.e(TAG, "Error checking dedup", e)
-            return false
+            false
         }
     }
     
