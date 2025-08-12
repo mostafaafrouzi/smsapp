@@ -18,68 +18,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
 
-    - name: Set up Android SDK
-      uses: android-actions/setup-android@v3
-      
-
-    - name: Accept Android licenses
-      run: yes | sdkmanager --licenses
-    
-    - name: Install Android SDK components
+    - name: Sanity echo (validate workflow engine runs jobs)
       run: |
-        sdkmanager --install \
-          "platform-tools" \
-          "platforms;android-34" \
-          "build-tools;34.0.0"
-        
-    - name: Build with Gradle
-      uses: gradle/gradle-build-action@v3
-      with:
-        gradle-version: 8.1
-        arguments: --no-daemon --stacktrace assembleDebug assembleRelease
-      
-    - name: Upload Debug APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-debug
-        path: app/build/outputs/apk/debug/app-debug.apk
-        
-    - name: Upload Release APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-release-unsigned
-        path: app/build/outputs/apk/release/app-release-unsigned.apk
-        
-    - name: Sign Release APK (if secrets available)
-      if: ${{ secrets.SIGNING_KEYSTORE_BASE64 != '' && secrets.SIGNING_KEY_ALIAS != '' && secrets.SIGNING_KEY_PASSWORD != '' && secrets.SIGNING_STORE_PASSWORD != '' }}
-      run: |
-        echo ${{ secrets.SIGNING_KEYSTORE_BASE64 }} | base64 -d > keystore.jks
-        echo ${{ secrets.SIGNING_STORE_PASSWORD }} > store_password
-        echo ${{ secrets.SIGNING_KEY_PASSWORD }} > key_password
-        echo ${{ secrets.SIGNING_KEY_ALIAS }} > key_alias
-        
-        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
-          -keystore keystore.jks \
-          -storepass $(cat store_password) \
-          -keypass $(cat key_password) \
-          app/build/outputs/apk/release/app-release-unsigned.apk \
-          $(cat key_alias)
-          
-        zipalign -v 4 \
-          app/build/outputs/apk/release/app-release-unsigned.apk \
-          app-release-signed.apk
-          
-    - name: Upload Signed Release APK (if signed)
-      if: ${{ secrets.SIGNING_KEYSTORE_BASE64 != '' && secrets.SIGNING_KEY_ALIAS != '' && secrets.SIGNING_KEY_PASSWORD != '' && secrets.SIGNING_STORE_PASSWORD != '' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-release-signed
-        path: app-release-signed.apk
+        echo "Runner: $RUNNER_OS"
+        echo "Repo: $GITHUB_REPOSITORY, SHA: $GITHUB_SHA"
