@@ -64,7 +64,7 @@
     <string name="logs_call_type">Call Type</string>
     <string name="logs_message">Message</string>
     <string name="logs_channel">Channel</string>
-    <string="logs_status">Status</string>
+    <string name="logs_status">Status</string>
     <string name="logs_timestamp">Timestamp</string>
     
     <!-- Call Types -->
