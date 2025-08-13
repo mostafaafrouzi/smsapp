@@ -26,7 +26,6 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-<<<<<<< HEAD
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v3
 
@@ -42,72 +41,68 @@ jobs:
             "platforms;android-34" \
             "build-tools;34.0.0"
 
-    - name: Install Android SDK components
-      run: |
-        sdkmanager --install \
-          "platform-tools" \
-          "platforms;android-34" \
-          "build-tools;34.0.0"
-
-    - name: Make Gradle wrapper executable
-      run: chmod +x gradlew
-
-    - name: Build (Debug + Release)
-      run: ./gradlew --no-daemon --stacktrace assembleDebug assembleRelease
-
       - name: Make Gradle wrapper executable
-        run: chmod +x ./gradlew
+        run: chmod +x gradlew
 
-    - name: Upload Release APK (unsigned)
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-release-unsigned
-        path: app/build/outputs/apk/release/app-release-unsigned.apk
+      - name: Build (Debug + Release)
+        run: ./gradlew --no-daemon --stacktrace assembleDebug assembleRelease
 
-    - name: Check signing secrets
-      id: signing
-      shell: bash
-      run: |
-        if [[ -n "${{ secrets.SIGNING_KEYSTORE_BASE64 }}" && -n "${{ secrets.SIGNING_KEY_ALIAS }}" && -n "${{ secrets.SIGNING_KEY_PASSWORD }}" && -n "${{ secrets.SIGNING_STORE_PASSWORD }}" ]]; then
-          echo "available=true" >> "$GITHUB_OUTPUT"
-        else
-          echo "available=false" >> "$GITHUB_OUTPUT"
-        fi
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
 
-    - name: Decode keystore
-      if: steps.signing.outputs.available == 'true'
-      run: |
-        echo "${{ secrets.SIGNING_KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
+      - name: Upload Release APK (unsigned)
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-unsigned
+          path: app/build/outputs/apk/release/app-release-unsigned.apk
 
-    - name: Align and sign Release APK
-      if: steps.signing.outputs.available == 'true'
-      run: |
-        zipalign -p -f 4 app/build/outputs/apk/release/app-release-unsigned.apk app-release-aligned.apk
-        apksigner sign \
-          --ks keystore.jks \
-          --ks-key-alias "${{ secrets.SIGNING_KEY_ALIAS }}" \
-          --ks-pass pass:${{ secrets.SIGNING_STORE_PASSWORD }} \
-          --key-pass pass:${{ secrets.SIGNING_KEY_PASSWORD }} \
-          --out app-release-signed.apk \
-          app-release-aligned.apk
-        apksigner verify --print-certs app-release-signed.apk
+      - name: Check signing secrets
+        id: signing
+        shell: bash
+        run: |
+          if [[ -n "${{ secrets.SIGNING_KEYSTORE_BASE64 }}" && -n "${{ secrets.SIGNING_KEY_ALIAS }}" && -n "${{ secrets.SIGNING_KEY_PASSWORD }}" && -n "${{ secrets.SIGNING_STORE_PASSWORD }}" ]]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
 
-    - name: Upload Signed Release APK
-      if: steps.signing.outputs.available == 'true'
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-release-signed
-        path: app-release-signed.apk
+      - name: Decode keystore
+        if: steps.signing.outputs.available == 'true'
+        run: |
+          echo "${{ secrets.SIGNING_KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
 
-    - name: Summary
-      shell: bash
-      run: |
-        echo "# Build summary" >> "$GITHUB_STEP_SUMMARY"
-        echo "- JDK: 17 (Temurin)" >> "$GITHUB_STEP_SUMMARY"
-        echo "- SDK: platform android-34, build-tools 34.0.0" >> "$GITHUB_STEP_SUMMARY"
-        echo "- Artifacts: app-debug.apk, app-release-unsigned.apk" >> "$GITHUB_STEP_SUMMARY"
-        if [[ "${{ steps.signing.outputs.available }}" == "true" ]]; then
-          echo "- Signing: Enabled → app-release-signed.apk uploaded" >> "$GITHUB_STEP_SUMMARY"
-        else
-          echo "- Signing: Skipped (missing secrets)" >> "$GITHUB_STEP_SUMMARY"
-        fi
+      - name: Align and sign Release APK
+        if: steps.signing.outputs.available == 'true'
+        run: |
+          zipalign -p -f 4 app/build/outputs/apk/release/app-release-unsigned.apk app-release-aligned.apk
+          apksigner sign \
+            --ks keystore.jks \
+            --ks-key-alias "${{ secrets.SIGNING_KEY_ALIAS }}" \
+            --ks-pass pass:${{ secrets.SIGNING_STORE_PASSWORD }} \
+            --key-pass pass:${{ secrets.SIGNING_KEY_PASSWORD }} \
+            --out app-release-signed.apk \
+            app-release-aligned.apk
+          apksigner verify --print-certs app-release-signed.apk
+
+      - name: Upload Signed Release APK
+        if: steps.signing.outputs.available == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-signed
+          path: app-release-signed.apk
+
+      - name: Summary
+        shell: bash
+        run: |
+          echo "# Build summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "- JDK: 17 (Temurin)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- SDK: platform android-34, build-tools 34.0.0" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Artifacts: app-debug.apk, app-release-unsigned.apk" >> "$GITHUB_STEP_SUMMARY"
+          if [[ "${{ steps.signing.outputs.available }}" == "true" ]]; then
+            echo "- Signing: Enabled → app-release-signed.apk uploaded" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Signing: Skipped (missing secrets)" >> "$GITHUB_STEP_SUMMARY"
+          fi
