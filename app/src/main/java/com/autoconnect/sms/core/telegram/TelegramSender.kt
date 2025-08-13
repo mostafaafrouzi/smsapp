@@ -37,7 +37,7 @@ class TelegramSender(private val context: Context) {
         botToken: String,
         chatId: String
     ): CallLogItem = withContext(Dispatchers.IO) {
-        return try {
+        try {
             Log.d(TAG, "Sending Telegram message to chat $chatId: $message")
             
             if (botToken.isBlank()) {
