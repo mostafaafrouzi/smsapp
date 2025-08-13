@@ -14,46 +14,83 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
 
-    - name: Set up Android SDK
-      uses: android-actions/setup-android@v3
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
 
-    - name: Accept Android licenses
-      run: yes | sdkmanager --licenses
+      - name: Prepare Android SDK (licenses + packages)
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager --install \
+            "platform-tools" \
+            "platforms;android-34" \
+            "build-tools;34.0.0"
 
-    - name: Install Android SDK components
-      run: |
-        sdkmanager --install \
-          "platform-tools" \
-          "platforms;android-34" \
-          "build-tools;34.0.0" \
-          "build-tools;33.0.1"
+      - name: Check signing secrets
+        id: signing_guard
+        shell: bash
+        run: |
+          if [[ -n "${{ secrets.SIGNING_KEYSTORE_BASE64 }}" && -n "${{ secrets.SIGNING_KEY_ALIAS }}" && -n "${{ secrets.SIGNING_KEY_PASSWORD }}" && -n "${{ secrets.SIGNING_STORE_PASSWORD }}" ]]; then
+            echo "has-secrets=true" >> $GITHUB_OUTPUT
+          else
+            echo "has-secrets=false" >> $GITHUB_OUTPUT
+          fi
 
-    - name: Build with Gradle
-      uses: gradle/gradle-build-action@v3
-      with:
-        gradle-version: 8.1
-        arguments: --no-daemon --stacktrace assembleDebug assembleRelease
+      - name: Provision keystore (if secrets present)
+        if: steps.signing_guard.outputs.has-secrets == 'true'
+        shell: bash
+        run: |
+          echo "Decoding keystore to runner temp"
+          echo "${{ secrets.SIGNING_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/keystore.jks"
+          echo "SIGNING_KEYSTORE_PATH=$RUNNER_TEMP/keystore.jks" >> $GITHUB_ENV
+          echo "SIGNING_KEY_ALIAS=${{ secrets.SIGNING_KEY_ALIAS }}" >> $GITHUB_ENV
+          echo "SIGNING_KEY_PASSWORD=${{ secrets.SIGNING_KEY_PASSWORD }}" >> $GITHUB_ENV
+          echo "SIGNING_STORE_PASSWORD=${{ secrets.SIGNING_STORE_PASSWORD }}" >> $GITHUB_ENV
 
-    - name: Upload Debug APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-debug
-        path: app/build/outputs/apk/debug/app-debug.apk
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
 
-    - name: Upload Release APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-release-unsigned
-        path: app/build/outputs/apk/release/app-release-unsigned.apk
+      - name: Build Debug and Release
+        shell: bash
+        run: ./gradlew --no-daemon --stacktrace assembleDebug assembleRelease
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload Release APK (signed)
+        if: steps.signing_guard.outputs.has-secrets == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-signed
+          path: app/build/outputs/apk/release/app-release.apk
+
+      - name: Upload Release APK (unsigned)
+        if: steps.signing_guard.outputs.has-secrets == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-unsigned
+          path: app/build/outputs/apk/release/app-release-unsigned.apk
+
+      - name: Summary
+        run: |
+          echo "Build finished" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.signing_guard.outputs.has-secrets }}" = "true" ]; then
+            echo "Release signing: enabled (artifact: app-release-signed)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Release signing: disabled (artifact: app-release-unsigned)" >> $GITHUB_STEP_SUMMARY
+          fi
