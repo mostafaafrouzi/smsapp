@@ -11,6 +11,7 @@ import com.autoconnect.sms.data.prefs.PreferencesManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import java.util.*
 
 class CallDetectionManager(private val context: Context) {
@@ -61,12 +62,10 @@ class CallDetectionManager(private val context: Context) {
             calendar.add(Calendar.HOUR, -dedupHours)
             val since = calendar.time
 
-            val recentMessages = database.callLogDao().getRecentMessagesForNumber(phoneNumber, since)
-            var hasRecent = false
-            recentMessages.collect { messages ->
-                hasRecent = messages.isNotEmpty()
-            }
-            hasRecent
+            val messages = database.callLogDao()
+                .getRecentMessagesForNumber(phoneNumber, since)
+                .first()
+            messages.isNotEmpty()
         } catch (e: Exception) {
             Log.e(TAG, "Error checking dedup", e)
             false

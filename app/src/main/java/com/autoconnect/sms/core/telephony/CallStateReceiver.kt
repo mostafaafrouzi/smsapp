@@ -77,13 +77,6 @@ class CallStateReceiver : BroadcastReceiver() {
                     }
                 }
             }
-            Intent.ACTION_NEW_OUTGOING_CALL -> {
-                val phoneNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER)
-                Log.d(TAG, "New outgoing call: $phoneNumber")
-                lastPhoneNumber = phoneNumber
-                callStartTime = System.currentTimeMillis()
-                lastState = TelephonyManager.CALL_STATE_OFFHOOK
-            }
         }
     }
     

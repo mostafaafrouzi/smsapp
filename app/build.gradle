@@ -18,10 +18,20 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Configure signing only if CI provides secrets
+    def hasSigning = System.getenv("SIGNING_KEYSTORE_PATH") != null &&
+            System.getenv("SIGNING_KEY_ALIAS") != null &&
+            System.getenv("SIGNING_KEY_PASSWORD") != null &&
+            System.getenv("SIGNING_STORE_PASSWORD") != null
+
     signingConfigs {
-        release {
-            // Placeholders for future signing via GitHub Actions secrets
-            // Keystore will be provided by CI if configured; otherwise unsigned
+        if (hasSigning) {
+            release {
+                storeFile file(System.getenv("SIGNING_KEYSTORE_PATH"))
+                storePassword System.getenv("SIGNING_STORE_PASSWORD")
+                keyAlias System.getenv("SIGNING_KEY_ALIAS")
+                keyPassword System.getenv("SIGNING_KEY_PASSWORD")
+            }
         }
     }
 
@@ -29,7 +39,9 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            if (hasSigning) {
+                signingConfig signingConfigs.release
+            }
         }
         debug {
             minifyEnabled false
